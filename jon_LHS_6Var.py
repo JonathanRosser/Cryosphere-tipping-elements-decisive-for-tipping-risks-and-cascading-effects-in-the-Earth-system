@@ -1,10 +1,6 @@
 #Use a Latin HyperCube Sampler to create sample parameter values to perform Leave One Out Analysis
 
-from scipy.integrate import odeint
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set(font_scale=1.25)
 from pyDOE import lhs #function name >>> lhs
 
 

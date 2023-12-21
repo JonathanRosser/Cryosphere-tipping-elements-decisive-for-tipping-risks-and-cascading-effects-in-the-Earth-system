@@ -4,8 +4,6 @@
 import numpy as np
 import pycascades as pc
 import sys
-import os
-import itertools
 from pycascades.earth_system.earth import linear_coupling_earth_system
 
 
