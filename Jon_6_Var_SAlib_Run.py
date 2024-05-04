@@ -1,13 +1,88 @@
-#This file will take as an input the temperature and the strength and will run the network model for every set of sample parameter values inputed. It will then save this in a suitably labelled file.
+#This file will take as an input the temperature and the strength and will output a datafile labelled with those values
 
 #Import packages
 import numpy as np
 import pycascades as pc
 import sys
+import os
+import itertools
+import time
 from pycascades.earth_system.earth import linear_coupling_earth_system
 
 
-#Define a class based on the pycascades system to set up the network and run the model
+
+#Define classes for relevant tipping points
+
+class cusp(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, b = 1, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['b'] = b
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * pow(x - self._par['x_0'],3) \
+                           + self._par['b'] * (x - self._par['x_0']) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : 3 * self._par['a'] * pow(x - self._par['x_0'],2) \
+                               + self._par['b']
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
+
+
+class linear(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * (x - self._par['x_0']) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : self._par['a']
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
+
+
+class cubic(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * pow(x - self._par['x_0'],3) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : 3 * self._par['a'] * pow(x - self._par['x_0'],2) \
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
 
 class Earth_System_6var_fixed_links():
     def __init__(self, limits_gis,limits_thc,limits_wais,limits_amaz,limits_nino,limits_assi,
@@ -45,12 +120,12 @@ class Earth_System_6var_fixed_links():
         self._pf_thc_to_nino = pf_thc_to_nino
         self._pf_thc_to_assi = pf_thc_to_assi
     def earth_network(self, effective_GMT, strength):
-        gis = pc.cusp(a=-1 / self._gis_time, b=1 / self._gis_time, c=(1 / self._gis_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_gis, effective_GMT), x_0=0)
-        thc = pc.cusp(a=-1 / self._thc_time, b=1 / self._thc_time, c=(1 / self._thc_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_thc, effective_GMT), x_0=0)
-        wais = pc.cusp(a=-1 / self._wais_time, b=1 / self._wais_time, c=(1 / self._wais_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_wais, effective_GMT), x_0=0)
-        amaz = pc.cusp(a=-1 / self._amaz_time, b=1 / self._amaz_time, c=(1 / self._amaz_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_amaz, effective_GMT), x_0=0)
-        nino = pc.cusp(a=-1 / self._nino_time, b=1 / self._nino_time, c=(1 / self._nino_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_nino, effective_GMT), x_0=0)
-        assi = pc.cusp(a=-1 / self._assi_time, b=1 / self._assi_time, c=(1 / self._assi_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_assi, effective_GMT), x_0=0)
+        gis = cusp(a=-1 / self._gis_time, b=1 / self._gis_time, c=(1 / self._gis_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_gis, effective_GMT), x_0=0)
+        thc = cusp(a=-1 / self._thc_time, b=1 / self._thc_time, c=(1 / self._thc_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_thc, effective_GMT), x_0=0)
+        wais = cusp(a=-1 / self._wais_time, b=1 / self._wais_time, c=(1 / self._wais_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_wais, effective_GMT), x_0=0)
+        amaz = cusp(a=-1 / self._amaz_time, b=1 / self._amaz_time, c=(1 / self._amaz_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_amaz, effective_GMT), x_0=0)
+        nino = linear(a=-1 / self._nino_time, c=(1 / self._nino_time) * effective_GMT/self._limits_nino, x_0=-1)
+        assi = linear(a=-1 / self._assi_time, c=(1 / self._assi_time) * effective_GMT/self._limits_assi, x_0=-1)
 
 
         # set up network
@@ -61,6 +136,8 @@ class Earth_System_6var_fixed_links():
         net.add_element(amaz)
         net.add_element(nino)
         net.add_element(assi)
+
+
 
         ######################################Set edges to active state#####################################
         net.add_coupling(1, 0, linear_coupling_earth_system(strength=(1 / self._gis_time) * strength * self._pf_thc_to_gis, x_0=-1.0))
@@ -97,18 +174,9 @@ def jon_6_var_earth_system_function(duration, timestep, strength, GMT, limits_gi
     net = earth_system.earth_network(GMT, strength)
     ev = pc.evolve(net, initial_state)
     t_end = duration
-    times=np.array((tau_gis,tau_thc,tau_wais,tau_nino,tau_amaz,tau_assi))
-    time_diffs=np.zeros((6,6))
-    for i in range(0,6):
-        for j in range(0,6):
-            if i!=j:
-                time_diffs[i,j]=abs(times[i]-times[j])
-            else:
-                time_diffs[i,j]=np.nan
-    min_time_of_interest=np.nanmin((np.nanmin(times),np.nanmin(time_diffs)))
-    timestep=np.nanmax((1,int(min_time_of_interest/5)))
     ev.integrate(timestep, t_end)
     timescales=np.zeros((6))
+    timeseries=ev.get_timeseries()
     for i in range(0,6):
         if ev.get_timeseries()[1][-1, i]<0:
             timescales[i]=np.nan
@@ -124,26 +192,28 @@ def jon_6_var_earth_system_function(duration, timestep, strength, GMT, limits_gi
 
 
 
-#Load the samples
+
+
 samples=np.load("SALib_samples_6_var.npy")
 
-#Define the number of years to run it for, the timestep, and retrieve the input link strength and global warming values
 duration = 100000.
 timestep = 1
 strength,GMT=np.array(sys.argv[1:],dtype=float)
 
 output=np.zeros((np.shape(samples)[0],np.shape(samples)[1]+8))
 
-
-#Iterate through and run the network model for each sample
+st=time.time()
 for i in range(0,np.shape(samples)[0]):
     limits=samples[i,:].copy()
     results_limits=limits.copy()
     output[i,:2]=strength,GMT
     output[i,2:-6]=results_limits
     output[i,-6:]=jon_6_var_earth_system_function(duration,timestep,strength,GMT,*list(limits))
-    if i%104==0:
+    if i%100==0:
         np.save("jon_SALib_outputs_6_var/GMT_"+str(GMT)+"_strength_"+str(strength)+"_SALib_test_results_6_var_"+str(i)+".npy",output)
+et=time.time()
+elapsed=et-st
+print(elapsed)
 
 np.save("jon_SALib_outputs_6_var/GMT_"+str(GMT)+"_strength_"+str(strength)+"_SALib_test_results_6_var_final.npy",output)
 
