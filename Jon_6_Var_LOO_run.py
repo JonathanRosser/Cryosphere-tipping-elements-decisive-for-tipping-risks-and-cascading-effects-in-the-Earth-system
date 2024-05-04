@@ -8,6 +8,81 @@ import os
 import itertools
 from pycascades.earth_system.earth import linear_coupling_earth_system
 
+#Define classes for relevant tipping points
+
+class cusp(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, b = 1, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['b'] = b
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * pow(x - self._par['x_0'],3) \
+                           + self._par['b'] * (x - self._par['x_0']) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : 3 * self._par['a'] * pow(x - self._par['x_0'],2) \
+                               + self._par['b']
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
+
+
+class linear(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * (x - self._par['x_0']) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : self._par['a']
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
+
+
+class cubic(pc.core.tipping_element.tipping_element):
+    """Concrete class for cusp-like tipping element"""
+    def __init__(self, a = -4, c = 0, x_0 = 0.5 ):
+        """Constructor with additional parameters for cusp"""
+        super().__init__()
+        self._type = 'cusp'
+        self._par['a'] = a
+        self._par['c'] = c
+        self._par['x_0'] = x_0
+
+    def dxdt_diag(self):
+        """returns callable of dx/dt diagonal element of cusp"""
+        return lambda t, x : self._par['a'] * pow(x - self._par['x_0'],3) \
+                           + self._par['c']
+
+    def jac_diag(self):
+        """returns callable jacobian diagonal element of cusp."""
+        return lambda t, x : 3 * self._par['a'] * pow(x - self._par['x_0'],2) \
+
+    def tip_state(self):
+        return lambda x : x > self._par['x_0']
+
+
+
 #Define a class based on the pycascades system to set up the network and run the model
 
 class Earth_System_6var_fixed_links():
@@ -46,12 +121,12 @@ class Earth_System_6var_fixed_links():
         self._pf_thc_to_nino = pf_thc_to_nino
         self._pf_thc_to_assi = pf_thc_to_assi
     def earth_network(self, effective_GMT, strength):
-        gis = pc.cusp(a=-1 / self._gis_time, b=1 / self._gis_time, c=(1 / self._gis_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_gis, effective_GMT), x_0=0)
-        thc = pc.cusp(a=-1 / self._thc_time, b=1 / self._thc_time, c=(1 / self._thc_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_thc, effective_GMT), x_0=0)
-        wais = pc.cusp(a=-1 / self._wais_time, b=1 / self._wais_time, c=(1 / self._wais_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_wais, effective_GMT), x_0=0)
-        amaz = pc.cusp(a=-1 / self._amaz_time, b=1 / self._amaz_time, c=(1 / self._amaz_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_amaz, effective_GMT), x_0=0)
-        nino = pc.cusp(a=-1 / self._nino_time, b=1 / self._nino_time, c=(1 / self._nino_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_nino, effective_GMT), x_0=0)
-        assi = pc.cusp(a=-1 / self._assi_time, b=1 / self._assi_time, c=(1 / self._assi_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_assi, effective_GMT), x_0=0)
+        gis = cusp(a=-1 / self._gis_time, b=1 / self._gis_time, c=(1 / self._gis_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_gis, effective_GMT), x_0=0)
+        thc = cusp(a=-1 / self._thc_time, b=1 / self._thc_time, c=(1 / self._thc_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_thc, effective_GMT), x_0=0)
+        wais = cusp(a=-1 / self._wais_time, b=1 / self._wais_time, c=(1 / self._wais_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_wais, effective_GMT), x_0=0)
+        amaz = cusp(a=-1 / self._amaz_time, b=1 / self._amaz_time, c=(1 / self._amaz_time) * pc.earth_system.functions_earth_system.global_functions.CUSPc(0., self._limits_amaz, effective_GMT), x_0=0)
+        nino = linear(a=-1 / self._nino_time, c=(1 / self._nino_time) * effective_GMT/self._limits_nino, x_0=-1)
+        assi = linear(a=-1 / self._assi_time, c=(1 / self._assi_time) * effective_GMT/self._limits_assi, x_0=-1)
 
 
         # set up network
@@ -103,6 +178,7 @@ def jon_6_var_earth_system_function(duration, timestep, strength, GMT, limits_gi
     t_end = duration
     ev.integrate(timestep, t_end)
     timescales=np.zeros((6))
+    timeseries=ev.get_timeseries()
     for i in range(0,6):
         if ev.get_timeseries()[1][-1, i]<0:
             timescales[i]=np.nan

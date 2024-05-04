@@ -1,6 +1,8 @@
-#Use a Latin HyperCube Sampler to create sample parameter values to perform Leave One Out Analysis
-
+from scipy.integrate import odeint
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set(font_scale=1.25)
 from pyDOE import lhs #function name >>> lhs
 
 
@@ -52,13 +54,11 @@ tau_assi = [10, 50]
 
 limits=np.array((limits_gis,limits_thc,limits_wais,limits_amaz,limits_nino,limits_assi,pf_wais_to_gis,pf_thc_to_gis,pf_gis_to_thc,pf_wais_to_thc,pf_assi_to_thc,pf_thc_to_wais,pf_gis_to_wais,pf_nino_to_wais,pf_thc_to_amaz,pf_nino_to_amaz,pf_thc_to_nino,pf_thc_to_assi,tau_gis,tau_thc,tau_wais,tau_nino,tau_amaz,tau_assi))
 
-#Use Latin HyperCube Sampler to sample parameter values
+
 points = np.array(lhs(24, samples=1000))
 
 array_limits=points*(limits[:,1]-limits[:,0])+limits[:,0]
 
-
-#Save the parameter values to a file for use in the network model
 np.save("jon_LHS_6var.npy",array_limits)
 
 
