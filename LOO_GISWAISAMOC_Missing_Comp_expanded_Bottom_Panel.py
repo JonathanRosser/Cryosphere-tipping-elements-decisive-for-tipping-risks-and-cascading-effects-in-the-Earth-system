@@ -120,8 +120,8 @@ axs[1].set_ylim([0,1])
 axs[0].set_xticks([])
 axs[1].set_xticks(x,labels,rotation=15)
 
-axs[0].text(0.02,0.95,"1",fontweight="bold",transform=axs[0].transAxes)
-axs[1].text(0.02,0.95,"2",fontweight="bold",transform=axs[1].transAxes)
+axs[0].text(0.02,0.95,"A",fontweight="bold",transform=axs[0].transAxes)
+axs[1].text(0.02,0.95,"B",fontweight="bold",transform=axs[1].transAxes)
 axs[2].remove()
 
 location=gridspec[2,0]
@@ -135,8 +135,8 @@ subfig_axs[0].set_xticklabels(labels,rotation=45)
 subfig_axs[1].set_xticklabels(labels,rotation=45)
 subfig_axs[0].set_title("1.5\N{DEGREE SIGN}C")
 subfig_axs[1].set_title("4.0\N{DEGREE SIGN}C")
-subfig_axs[0].text(0.05,0.9,"3",fontweight="bold",transform=subfig_axs[0].transAxes)
-subfig_axs[1].text(0.05,0.9,"4",fontweight="bold",transform=subfig_axs[1].transAxes)
+subfig_axs[0].text(0.05,0.9,"C",fontweight="bold",transform=subfig_axs[0].transAxes)
+subfig_axs[1].text(0.05,0.9,"D",fontweight="bold",transform=subfig_axs[1].transAxes)
 
 
 
