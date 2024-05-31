@@ -13,13 +13,16 @@ strength=0.5
 data_location="/home/jonathan/Documents/Coding/ERA/pycascades/earth_system/LOO_Fixed_Signs_Fixed_Links_Updated_Structure_Linear/jon_6var_loo_outputs/"
 
 limits_names=["limits_gis", "limits_thc", "limits_wais", "limits_amaz","limits_nino", "limits_assi", "pf_wais_to_gis", "pf_thc_to_gis", "pf_gis_to_thc", "pf_wais_to_thc", "pf_assi_to_thc", "pf_thc_to_wais", "pf_gis_to_wais",  "pf_thc_to_amaz", "pf_nino_to_amaz", "pf_thc_to_nino", "pf_amaz_to_nino", "pf_thc_to_assi", "none"]
-label_names=["WAIS","AMAZ","NINO","ASSI","GIS","AMOC"]
+label_names_old=["WAIS","AMAZ","ENSO","ASSI","GIS","AMOC"]
+label_names=["WAIS","GIS","AMOC","AMAZ","ASSI","ENSO"]
 
 labels=["Control","GIS Removed","WAIS Removed", "AMOC Removed"]
 
 #colors=["mediumpurple","palegreen","coral","turquoise","silver","cornflowerblue"]
 
-colors=[(202/256,178/256,214/256),(178/256,223/256,138/256),(251/256,154/256,153/256),(253/256,191/256,111/256),(255/256,255/256,153/256),(166/256,206/256,227/256)]
+old_colors=[(202/256,178/256,214/256),(178/256,223/256,138/256),(251/256,154/256,153/256),(253/256,191/256,111/256),(255/256,255/256,153/256),(166/256,206/256,227/256)]
+
+colors=[(202/256,178/256,214/256),(255/256,255/256,153/256),(166/256,206/256,227/256),(178/256,223/256,138/256),(253/256,191/256,111/256),(251/256,154/256,153/256)]
 
 node_values_sorted={}
 node_std_sorted={}
@@ -40,6 +43,7 @@ amoc_removed={}
 amocstd_removed={}
 gisfrac_removed={}
 
+rearrange_indices=[0,4,5,1,3,2]
 
 for gmt in GMT:
         data=np.load(data_location+"GMT_"+str(gmt)+"_strength_"+str(strength)+"_results_final.npy")[:1000,:,:]
@@ -72,17 +76,19 @@ for gmt in GMT:
 
 
 
-mean_control[1.5]=np.roll(mean_control[1.5],-2)
-gis_removed[1.5]=np.roll(gis_removed[1.5],-2)
-amoc_removed[1.5]=np.roll(amoc_removed[1.5],-2)
-wais_removed[1.5]=np.roll(wais_removed[1.5],-2)
+mean_control[1.5]=np.roll(mean_control[1.5],-2)[rearrange_indices]
+gis_removed[1.5]=np.roll(gis_removed[1.5],-2)[rearrange_indices]
+amoc_removed[1.5]=np.roll(amoc_removed[1.5],-2)[rearrange_indices]
+wais_removed[1.5]=np.roll(wais_removed[1.5],-2)[rearrange_indices]
 
 
 
-mean_control[4.0]=np.roll(mean_control[4.0],-2)
-gis_removed[4.0]=np.roll(gis_removed[4.0],-2)
-amoc_removed[4.0]=np.roll(amoc_removed[4.0],-2)
-wais_removed[4.0]=np.roll(wais_removed[4.0],-2)
+
+
+mean_control[4.0]=np.roll(mean_control[4.0],-2)[rearrange_indices]
+gis_removed[4.0]=np.roll(gis_removed[4.0],-2)[rearrange_indices]
+amoc_removed[4.0]=np.roll(amoc_removed[4.0],-2)[rearrange_indices]
+wais_removed[4.0]=np.roll(wais_removed[4.0],-2)[rearrange_indices]
 
 
 
@@ -120,8 +126,8 @@ axs[1].set_ylim([0,1])
 axs[0].set_xticks([])
 axs[1].set_xticks(x,labels,rotation=15)
 
-axs[0].text(0.02,0.95,"A",fontweight="bold",transform=axs[0].transAxes)
-axs[1].text(0.02,0.95,"B",fontweight="bold",transform=axs[1].transAxes)
+axs[0].text(0.02,0.95,"a",fontweight="bold",transform=axs[0].transAxes)
+axs[1].text(0.02,0.95,"b",fontweight="bold",transform=axs[1].transAxes)
 axs[2].remove()
 
 location=gridspec[2,0]
@@ -135,8 +141,8 @@ subfig_axs[0].set_xticklabels(labels,rotation=45)
 subfig_axs[1].set_xticklabels(labels,rotation=45)
 subfig_axs[0].set_title("1.5\N{DEGREE SIGN}C")
 subfig_axs[1].set_title("4.0\N{DEGREE SIGN}C")
-subfig_axs[0].text(0.05,0.9,"C",fontweight="bold",transform=subfig_axs[0].transAxes)
-subfig_axs[1].text(0.05,0.9,"D",fontweight="bold",transform=subfig_axs[1].transAxes)
+subfig_axs[0].text(0.05,0.9,"c",fontweight="bold",transform=subfig_axs[0].transAxes)
+subfig_axs[1].text(0.05,0.9,"d",fontweight="bold",transform=subfig_axs[1].transAxes)
 
 
 

@@ -85,13 +85,13 @@ axs[0].boxplot((percent_change_var_missing[1.5],percent_change_var_removed[1.5])
 
 
 axs[0].set_ylabel("Percentage change in \n mean number of elements tipped")
-axs[0].text(0.05,0.9,"A",fontweight="bold",transform=axs[0].transAxes)
+axs[0].text(0.05,0.9,"a",fontweight="bold",transform=axs[0].transAxes)
 axs[0].set_xticklabels(labels,rotation=45)
 axs[0].grid(axis="y",which="major",color="lightgrey")
 axs[1].set_title("4.0\N{DEGREE SIGN}C")
 axs[1].boxplot((percent_change_var_missing[4.0],percent_change_var_removed[4.0]),labels=["Node discounted","Node Removed"],whis=100000)
 axs[1].grid(axis="y",which="major",color="lightgrey")
-axs[1].text(0.05,0.9,"B",fontweight="bold",transform=axs[1].transAxes)
+axs[1].text(0.05,0.9,"b",fontweight="bold",transform=axs[1].transAxes)
 
 
 
